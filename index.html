@@ -1,0 +1,163 @@
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastro de Capacitações de Funcionários</title>
+<style>
+/* ===== RESET ===== */
+* { margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif; }
+body { background:#f2f2f2; color:#333; }
+.login-container, .container { max-width:800px; margin:50px auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+h2, h1 { text-align:center; margin-bottom:20px; }
+label { display:block; margin-bottom:10px; }
+input, select, button { width:100%; padding:10px; margin-top:5px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc; }
+button { background:#0077ff; color:#fff; border:none; cursor:pointer; transition:0.3s; }
+button:hover { background:#005fcc; }
+.secondary { background:#ccc; color:#333; }
+table { width:100%; border-collapse:collapse; margin-top:20px; }
+th, td { border:1px solid #ccc; padding:10px; text-align:center; }
+th { background:#0077ff; color:#fff; }
+tbody tr:nth-child(even) { background:#f9f9f9; }
+.logout { float:right; background:#ff4d4d; color:#fff; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; }
+.logout:hover { background:#cc0000; }
+.actions { display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+
+<!-- === TELA DE LOGIN === -->
+<section id="login-screen" class="login-container">
+<h2>Login</h2>
+<form id="loginForm">
+<label for="loginEmail">E-mail</label>
+<input type="email" id="loginEmail" required placeholder="ex: admin@empresa.com">
+<label for="loginPassword">Senha</label>
+<input type="password" id="loginPassword" required minlength="4" placeholder="Senha">
+<button type="submit">Entrar</button>
+</form>
+<p id="loginStatus" style="color:red; text-align:center;"></p>
+</section>
+
+<!-- Oculta o restante do site até o login ser validado -->
+<div id="site-content" style="display:none;">
+<div class="container">
+<header>
+<button id="logoutBtn" class="logout">Sair</button>
+<div class="card title-card">
+<strong>💼 Cadastro de Capacitações de Funcionários</strong>
+</div>
+<div class="header-text">
+<h1>Gerencie treinamentos</h1>
+<p class="lead">Adicione capacitações, defina objetivos, certificações e datas.</p>
+</div>
+</header>
+
+<section class="card">
+<form id="trainingForm">
+<label>Funcionário<input id="employee" type="text" required></label>
+<label>Treinamento<input id="training" type="text" required></label>
+<label>Objetivo alcançado<input id="goal" type="text" required></label>
+<label>Certificação<input id="certificate" type="text" placeholder="Se houver"></label>
+<label>Data<input id="date" type="date" required></label>
+
+<div class="actions">
+<button type="button" id="clearAll" class="secondary">Limpar registros</button>
+<button type="submit">Adicionar Registro</button>
+</div>
+</form>
+
+<table id="trainingTable">
+<thead>
+<tr>
+<th>Funcionário</th>
+<th>Treinamento</th>
+<th>Objetivo</th>
+<th>Certificação</th>
+<th>Data</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</section>
+</div>
+</div>
+
+<script>
+// ===== LOGIN =====
+document.getElementById("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    // Usuário e senha fixos
+    if(email === "admin@empresa.com" && password === "1234"){
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("site-content").style.display = "block";
+    } else {
+        document.getElementById("loginStatus").innerText = "E-mail ou senha incorretos!";
+    }
+});
+
+// ===== LOGOUT =====
+document.getElementById("logoutBtn").addEventListener("click", function(){
+    document.getElementById("site-content").style.display = "none";
+    document.getElementById("login-screen").style.display = "block";
+});
+
+// ===== CADASTRO DE CAPACITAÇÕES =====
+document.getElementById("trainingForm").addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const employee = document.getElementById("employee").value;
+    const training = document.getElementById("training").value;
+    const goal = document.getElementById("goal").value;
+    const certificate = document.getElementById("certificate").value || "—";
+    const date = document.getElementById("date").value;
+
+    const table = document.getElementById("trainingTable").querySelector("tbody");
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${employee}</td>
+        <td>${training}</td>
+        <td>${goal}</td>
+        <td>${certificate}</td>
+        <td>${date}</td>
+        <td>
+            <button class="editBtn">✏️</button>
+            <button class="deleteBtn">🗑️</button>
+        </td>
+    `;
+    table.appendChild(row);
+
+    // Limpa o formulário
+    document.getElementById("trainingForm").reset();
+});
+
+// ===== AÇÕES DE EDITAR/EXCLUIR =====
+document.getElementById("trainingTable").addEventListener("click", function(e){
+    const target = e.target;
+    const row = target.closest("tr");
+    if(target.classList.contains("deleteBtn")){
+        row.remove();
+    } else if(target.classList.contains("editBtn")){
+        document.getElementById("employee").value = row.children[0].innerText;
+        document.getElementById("training").value = row.children[1].innerText;
+        document.getElementById("goal").value = row.children[2].innerText;
+        document.getElementById("certificate").value = row.children[3].innerText === "—" ? "" : row.children[3].innerText;
+        document.getElementById("date").value = row.children[4].innerText;
+        row.remove();
+    }
+});
+
+// ===== LIMPAR TODOS OS REGISTROS =====
+document.getElementById("clearAll").addEventListener("click", function(){
+    if(confirm("Deseja realmente limpar todos os registros?")){
+        document.getElementById("trainingTable").querySelector("tbody").innerHTML = "";
+    }
+});
+</script>
+
+</body>
+</html>
