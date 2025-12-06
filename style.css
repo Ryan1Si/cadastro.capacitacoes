@@ -1,3 +1,4 @@
+Testa esse código mais tarde:
 /* ===== RESET ===== */
 * {
     margin: 0;
@@ -197,3 +198,20 @@ button.deleteBtn:hover {
         font-size: 12px;
     };
 }
+
+@media (max-width: 420px) {
+    .container, .login-container {
+        margin: 5px;
+        padding: 5px;
+    }
+
+    table{
+        font-size: 10px;
+    };
+
+    th, td {
+    padding: 4px;
+    }
+}
+
+
